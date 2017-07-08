@@ -135,8 +135,14 @@ def _test_incr(cl, proto):
     cl.incr('foo', 1.2)
     _sock_check(cl._sock, 3, proto, val='foo:1.2|c')
 
+    cl.incr('foo', 1.2, tags={'foo': 'bar'})
+    _sock_check(cl._sock, 4, proto, val='foo:1.2|c|#foo:bar')
+
     cl.incr('foo', 10, rate=0.5)
-    _sock_check(cl._sock, 4, proto, val='foo:10|c|@0.5')
+    _sock_check(cl._sock, 5, proto, val='foo:10|c|@0.5')
+
+    cl.incr('foo', 10, rate=0.5, tags={'foo': 'bar', 'baz': 'qux'})
+    _sock_check(cl._sock, 6, proto, val='foo:10|c|@0.5|#foo:bar,baz:qux')
 
 
 @mock.patch.object(random, 'random', lambda: -1)
@@ -188,8 +194,14 @@ def _test_gauge(cl, proto):
     cl.gauge('foo', 1.2)
     _sock_check(cl._sock, 2, proto, 'foo:1.2|g')
 
+    cl.gauge('foo', 70, tags={'foo': 'bar'})
+    _sock_check(cl._sock, 3, proto, 'foo:70|g|#foo:bar')
+
     cl.gauge('foo', 70, rate=0.5)
-    _sock_check(cl._sock, 3, proto, 'foo:70|g|@0.5')
+    _sock_check(cl._sock, 4, proto, 'foo:70|g|@0.5')
+
+    cl.gauge('foo', 70, rate=0.5, tags={'foo': 'bar', 'baz': 'qux'})
+    _sock_check(cl._sock, 5, proto, 'foo:70|g|@0.5|#foo:bar,baz:qux')
 
 
 @mock.patch.object(random, 'random', lambda: -1)
@@ -332,11 +344,14 @@ def _test_set(cl, proto):
     cl.set('foo', 2.3)
     _sock_check(cl._sock, 2, proto, 'foo:2.3|s')
 
-    cl.set('foo', 'bar')
-    _sock_check(cl._sock, 3, proto, 'foo:bar|s')
+    cl.set('foo', 2.3, tags={'foo': 'bar'})
+    _sock_check(cl._sock, 3, proto, 'foo:2.3|s|#foo:bar')
 
-    cl.set('foo', 2.3, 0.5)
-    _sock_check(cl._sock, 4, proto, 'foo:2.3|s|@0.5')
+    cl.set('foo', 'bar')
+    _sock_check(cl._sock, 4, proto, 'foo:bar|s')
+
+    cl.set('foo', 2.3, 0.5, tags={'foo': 'bar', 'baz': 'qux'})
+    _sock_check(cl._sock, 5, proto, 'foo:2.3|s|@0.5|#foo:bar,baz:qux')
 
 
 @mock.patch.object(random, 'random', lambda: -1)
@@ -360,8 +375,17 @@ def _test_timing(cl, proto):
     cl.timing('foo', 350)
     _sock_check(cl._sock, 2, proto, 'foo:350.000000|ms')
 
+    cl.timing('foo', 350, tags={'foo': 'bar'})
+    _sock_check(cl._sock, 3, proto, 'foo:350.000000|ms|#foo:bar')
+
     cl.timing('foo', 100, rate=0.5)
-    _sock_check(cl._sock, 3, proto, 'foo:100.000000|ms|@0.5')
+    _sock_check(cl._sock, 4, proto, 'foo:100.000000|ms|@0.5')
+
+    cl.timing('foo', 100, rate=0.5)
+    _sock_check(cl._sock, 5, proto, 'foo:100.000000|ms|@0.5')
+
+    cl.timing('foo', 100, rate=0.5, tags={'foo': 'bar', 'baz': 'qux'})
+    _sock_check(cl._sock, 6, proto, 'foo:100.000000|ms|@0.5|#foo:bar,baz:qux')
 
 
 @mock.patch.object(random, 'random', lambda: -1)
