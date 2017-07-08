@@ -110,8 +110,6 @@ class StatsClientBase(object):
         self._send_stat(stat, '%s|s' % value, rate, tags=tags)
 
     def _prepare_tags(self, tags):
-        if not tags:
-            return
         joined_tags = ','.join(['%s:%s' % (key, value) for (key, value)
                                 in tags.items()])
         return '|#' + joined_tags
